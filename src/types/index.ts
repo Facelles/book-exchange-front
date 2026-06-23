@@ -1,7 +1,7 @@
 export interface User {
   id: number;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
   name?: string;
   avatarUrl?: string;
 }
@@ -11,10 +11,13 @@ export interface ExchangeRequest {
   senderId: number;
   receiverId: number;
   bookId: number;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  offeredBookId?: number;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
   createdAt: string;
   sender?: User;
+  receiver?: User;
   book?: Book;
+  offeredBook?: Book;
 }
 
 export interface Book {
@@ -48,7 +51,7 @@ export interface AdminUser extends User {
 export interface AddUserForm {
   email: string;
   password: string;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
 }
 
 export interface AddBookForm {

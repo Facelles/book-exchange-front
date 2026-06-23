@@ -1,6 +1,6 @@
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from "@/store/useAuthStore";
 
-const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/$/, '');
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 
 type FetchOptions = RequestInit & {
   auth?: boolean;
@@ -8,18 +8,18 @@ type FetchOptions = RequestInit & {
 
 export async function apiFetch<T>(
   path: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<T> {
   const { auth = false, ...rest } = options;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(rest.headers as Record<string, string>),
   };
 
   if (auth) {
     const token = useAuthStore.getState().token;
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
   }
 
@@ -29,6 +29,15 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      useAuthStore.getState().logout();
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.href = "/login";
+      }
+    }
     const errorBody = await res.json().catch(() => ({}));
     throw new Error(errorBody?.message ?? `Request failed: ${res.status}`);
   }

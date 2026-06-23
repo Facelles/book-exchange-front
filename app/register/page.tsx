@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
-import { useAuthStore } from '@/store/useAuthStore';
-import { AuthResponse } from '@/types';
-import { UserPlus, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
+import { useAuthStore } from "@/store/useAuthStore";
+import { AuthResponse } from "@/types";
+import { UserPlus, Mail, Lock, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuthStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,39 +23,43 @@ export default function RegisterPage() {
     setError(null);
 
     if (!email.trim() || !password.trim() || !confirm.trim()) {
-      setError('Please fill in all fields.');
+      setError("Please fill in all fields.");
       return;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address.');
+      setError("Please enter a valid email address.");
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError("Password must be at least 6 characters.");
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     try {
-      const data = await apiFetch<AuthResponse>('/api/register', {
-        method: 'POST',
+      const data = await apiFetch<AuthResponse>("/api/register", {
+        method: "POST",
         body: JSON.stringify({ email: email.trim(), password }),
       });
       login(data.token, data.user);
-      router.push('/books');
+      router.push("/books");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const inputClass =
-    'w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all';
+    "w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all";
 
   const isStrong = password.length >= 6;
 
@@ -72,12 +76,17 @@ export default function RegisterPage() {
               <UserPlus size={26} className="text-purple-400" />
             </div>
             <h1 className="text-2xl font-bold text-white">Create account</h1>
-            <p className="mt-1 text-sm text-slate-400">Join the BookSwap community</p>
+            <p className="mt-1 text-sm text-slate-400">
+              Join the BookSwap community
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <Mail
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+              />
               <input
                 id="register-email"
                 type="email"
@@ -91,7 +100,10 @@ export default function RegisterPage() {
 
             <div>
               <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <Lock
+                  size={16}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+                />
                 <input
                   id="register-password"
                   type="password"
@@ -103,15 +115,26 @@ export default function RegisterPage() {
                 />
               </div>
               {password && (
-                <div className={`mt-1.5 flex items-center gap-1.5 text-xs ${isStrong ? 'text-green-400' : 'text-amber-400'}`}>
-                  {isStrong ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
-                  {isStrong ? 'Strong password' : 'At least 6 characters required'}
+                <div
+                  className={`mt-1.5 flex items-center gap-1.5 text-xs ${isStrong ? "text-green-400" : "text-amber-400"}`}
+                >
+                  {isStrong ? (
+                    <CheckCircle size={12} />
+                  ) : (
+                    <AlertCircle size={12} />
+                  )}
+                  {isStrong
+                    ? "Strong password"
+                    : "At least 6 characters required"}
                 </div>
               )}
             </div>
 
             <div className="relative">
-              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <Lock
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+              />
               <input
                 id="register-confirm"
                 type="password"
@@ -147,8 +170,11 @@ export default function RegisterPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            Already have an account?{' '}
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            >
               Sign in
             </Link>
           </p>

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { apiFetch } from '@/lib/api';
-import { Lock, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { apiFetch } from "@/lib/api";
+import { Lock, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams?.get('token');
+  const token = searchParams?.get("token");
 
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -24,16 +24,18 @@ function ResetPasswordForm() {
     setError(null);
 
     try {
-      await apiFetch('/api/reset-password', {
-        method: 'POST',
+      await apiFetch("/api/reset-password", {
+        method: "POST",
         body: JSON.stringify({ token, newPassword: password }),
       });
       setSuccess(true);
       setTimeout(() => {
-        router.push('/login');
+        router.push("/login");
       }, 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Invalid or expired token.');
+      setError(
+        err instanceof Error ? err.message : "Invalid or expired token.",
+      );
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,9 @@ function ResetPasswordForm() {
         <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto mb-4">
           <CheckCircle size={24} />
         </div>
-        <h3 className="text-white font-medium mb-2">Password Reset Successful</h3>
+        <h3 className="text-white font-medium mb-2">
+          Password Reset Successful
+        </h3>
         <p className="text-slate-400 text-sm mb-4">
           Your password has been successfully updated.
         </p>
@@ -75,11 +79,17 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-400 mb-2">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-slate-400 mb-2"
+        >
           New Password
         </label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <Lock
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+            size={18}
+          />
           <input
             id="password"
             type="password"
@@ -116,7 +126,6 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-        {/* Glow effect */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-32 bg-amber-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="mb-8">
@@ -126,7 +135,13 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <Suspense fallback={<div className="flex justify-center p-4"><Loader2 className="animate-spin text-amber-500" /></div>}>
+        <Suspense
+          fallback={
+            <div className="flex justify-center p-4">
+              <Loader2 className="animate-spin text-amber-500" />
+            </div>
+          }
+        >
           <ResetPasswordForm />
         </Suspense>
       </div>

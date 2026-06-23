@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { apiFetch } from '@/lib/api';
-import { useAuthStore } from '@/store/useAuthStore';
-import { ExchangeRequest } from '@/types';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { apiFetch } from "@/lib/api";
+import { useAuthStore } from "@/store/useAuthStore";
+import { ExchangeRequest } from "@/types";
 import {
   UserCircle,
   Mail,
@@ -16,8 +16,8 @@ import {
   AlertCircle,
   CheckCircle,
   ArrowRightLeft,
-  Clock
-} from 'lucide-react';
+  Clock,
+} from "lucide-react";
 
 interface ProfileData {
   id: number;
@@ -32,16 +32,14 @@ interface ProfileData {
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isInitialized, updateUser } = useAuthStore();
-  
+
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [requests, setRequests] = useState<ExchangeRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
-  // Form State
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -49,23 +47,23 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!isInitialized) return;
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
     const fetchProfileData = async () => {
       try {
         const [profileData, requestsData] = await Promise.all([
-          apiFetch<ProfileData>('/api/profile', { auth: true }),
-          apiFetch<ExchangeRequest[]>('/api/profile/exchange-requests', { auth: true }),
+          apiFetch<ProfileData>("/api/me/profile", { auth: true }),
+          apiFetch<ExchangeRequest[]>("/api/me/requests", { auth: true }),
         ]);
 
         setProfile(profileData);
         setRequests(requestsData);
-        
-        setName(profileData.name || '');
-        setEmail(profileData.email || '');
-        setAvatarUrl(profileData.avatarUrl || '');
+
+        setName(profileData.name || "");
+        setEmail(profileData.email || "");
+        setAvatarUrl(profileData.avatarUrl || "");
       } catch (err) {
         console.error(err);
       } finally {
@@ -83,20 +81,44 @@ export default function ProfilePage() {
     setSuccess(false);
 
     try {
-      const updatedUser = await apiFetch<ProfileData>('/api/profile', {
-        method: 'PUT',
+      const updatedUser = await apiFetch<ProfileData>("/api/me/profile", {
+        method: "PUT",
         auth: true,
         body: JSON.stringify({ name, email, avatarUrl }),
       });
-      
-      setProfile((prev) => prev ? { ...prev, ...updatedUser } : null);
-      updateUser({ name: updatedUser.name || undefined, avatarUrl: updatedUser.avatarUrl || undefined, email: updatedUser.email });
+
+      setProfile((prev) => (prev ? { ...prev, ...updatedUser } : null));
+      updateUser({
+        name: updatedUser.name || undefined,
+        avatarUrl: updatedUser.avatarUrl || undefined,
+        email: updatedUser.email,
+      });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile');
+      setError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleRespondRequest = async (
+    requestId: number,
+    status: "ACCEPTED" | "REJECTED",
+  ) => {
+    try {
+      await apiFetch(`/api/me/requests/${requestId}/respond`, {
+        method: "POST",
+        auth: true,
+        body: JSON.stringify({ status }),
+      });
+
+      setRequests((prev) =>
+        prev.map((req) => (req.id === requestId ? { ...req, status } : req)),
+      );
+    } catch (err) {
+      console.error("Failed to respond to request:", err);
+      alert("Failed to respond to request");
     }
   };
 
@@ -114,33 +136,42 @@ export default function ProfilePage() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
-        <p className="text-slate-400">Manage your personal information and exchange requests.</p>
+        <p className="text-slate-400">
+          Manage your personal information and exchange requests.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Edit Profile & Stats */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Stats Card */}
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400">
                 <BookOpen size={24} />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-400">Books Owned</p>
-                <p className="text-2xl font-bold text-white">{profile.bookCount}</p>
+                <p className="text-sm font-medium text-slate-400">
+                  Books Owned
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {profile.bookCount}
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Edit Form */}
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-6">Personal Info</h2>
+            <h2 className="text-xl font-semibold text-white mb-6">
+              Personal Info
+            </h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="flex justify-center mb-6">
                 <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden flex items-center justify-center">
                   {avatarUrl ? (
-                    <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                    <Image
+                      src={avatarUrl}
+                      alt="Avatar"
+                      fill
+                      className="object-cover"
+                    />
                   ) : (
                     <UserCircle size={48} className="text-slate-500" />
                   )}
@@ -148,9 +179,14 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">Avatar URL</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Avatar URL
+                </label>
                 <div className="relative">
-                  <Camera size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Camera
+                    size={15}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                  />
                   <input
                     type="url"
                     value={avatarUrl}
@@ -162,9 +198,14 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">Name</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Name
+                </label>
                 <div className="relative">
-                  <UserCircle size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <UserCircle
+                    size={15}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                  />
                   <input
                     type="text"
                     value={name}
@@ -176,9 +217,14 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">Email</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Email
+                </label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Mail
+                    size={15}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                  />
                   <input
                     type="email"
                     value={email}
@@ -209,21 +255,25 @@ export default function ProfilePage() {
                 disabled={saving}
                 className="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold py-2.5 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
               >
-                {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                {saving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Save size={16} />
+                )}
                 Save Changes
               </button>
             </form>
           </div>
         </div>
-
-        {/* Right Column: Exchange Requests */}
         <div className="lg:col-span-2">
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 h-full">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <ArrowRightLeft size={20} />
               </div>
-              <h2 className="text-xl font-semibold text-white">Incoming Exchange Requests</h2>
+              <h2 className="text-xl font-semibold text-white">
+                Incoming Exchange Requests
+              </h2>
             </div>
 
             {requests.length === 0 ? (
@@ -231,27 +281,36 @@ export default function ProfilePage() {
                 <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-slate-500">
                   <ArrowRightLeft size={24} />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-1">No requests yet</h3>
+                <h3 className="text-lg font-medium text-white mb-1">
+                  No requests yet
+                </h3>
                 <p className="text-slate-400 text-sm max-w-sm">
-                  When someone wants to exchange a book with you, their requests will appear here.
+                  When someone wants to exchange a book with you, their requests
+                  will appear here.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {requests.map((req) => (
-                  <div key={req.id} className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    {/* Book Image */}
-                    {req.book?.photoUrl ? (
+                  <div
+                    key={req.id}
+                    className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center"
+                  >
+                    {req.book?.photoUrl &&
+                    req.book.photoUrl.startsWith("http") ? (
                       <div className="w-16 h-20 relative rounded-lg overflow-hidden flex-shrink-0">
-                        <Image src={req.book.photoUrl} alt={req.book.name} fill className="object-cover" />
+                        <Image
+                          src={req.book.photoUrl}
+                          alt={req.book.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     ) : (
                       <div className="w-16 h-20 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
                         <BookOpen size={24} className="text-slate-500" />
                       </div>
                     )}
-                    
-                    {/* Details */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -268,22 +327,79 @@ export default function ProfilePage() {
                       <p className="text-sm text-slate-400 mb-2">
                         by {req.book?.author}
                       </p>
-                      
+
                       <div className="flex items-center gap-2">
                         {req.sender?.avatarUrl ? (
-                           <div className="w-6 h-6 rounded-full relative overflow-hidden">
-                             <Image src={req.sender.avatarUrl} alt="User" fill className="object-cover" />
-                           </div>
+                          <div className="w-6 h-6 rounded-full relative overflow-hidden">
+                            <Image
+                              src={req.sender.avatarUrl}
+                              alt="User"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">
-                            {req.sender?.name?.[0]?.toUpperCase() || req.sender?.email[0].toUpperCase()}
+                            {req.sender?.name?.[0]?.toUpperCase() ||
+                              req.sender?.email[0].toUpperCase()}
                           </div>
                         )}
                         <span className="text-sm text-slate-300">
-                          <span className="text-slate-500">Requested by:</span> {req.sender?.name || req.sender?.email}
+                          <span className="text-slate-500">Requested by:</span>{" "}
+                          {req.sender?.name || req.sender?.email}
                         </span>
                       </div>
+                      {req.offeredBook && (
+                        <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
+                          {req.offeredBook.photoUrl &&
+                          req.offeredBook.photoUrl.startsWith("http") ? (
+                            <div className="w-10 h-12 relative rounded overflow-hidden flex-shrink-0">
+                              <Image
+                                src={req.offeredBook.photoUrl}
+                                alt={req.offeredBook.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-12 rounded bg-slate-800 flex items-center justify-center flex-shrink-0">
+                              <BookOpen size={16} className="text-slate-500" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-xs text-indigo-400 font-medium mb-0.5">
+                              Offered in return:
+                            </p>
+                            <p className="text-sm text-white font-medium">
+                              {req.offeredBook.name}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              by {req.offeredBook.author}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                    {req.status === "PENDING" && (
+                      <div className="flex flex-row sm:flex-col gap-2 mt-4 sm:mt-0 ml-auto sm:ml-4">
+                        <button
+                          onClick={() =>
+                            handleRespondRequest(req.id, "ACCEPTED")
+                          }
+                          className="px-4 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRespondRequest(req.id, "REJECTED")
+                          }
+                          className="px-4 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

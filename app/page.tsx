@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function HomePage() {
   const router = useRouter();
@@ -10,11 +10,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isInitialized) return;
-    
+
     if (token) {
-      router.push('/books');
+      router.push("/books");
     } else {
-      router.push('/register');
+      router.push("/register");
     }
   }, [isInitialized, token, router]);
 

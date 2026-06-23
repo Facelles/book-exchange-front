@@ -1,18 +1,18 @@
-import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
-import './globals.css';
-import Navbar from '@/components/Navbar';
-import AuthInitializer from '@/components/AuthInitializer';
+import type { Metadata } from "next";
+import { Geist } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
+import AuthInitializer from "@/components/AuthInitializer";
 
 const geist = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: 'BookSwap — Book Exchange Service',
+  title: "BookSwap — Book Exchange Service",
   description:
-    'Find, share, and exchange books with readers in your community. Browse our catalog and request exchanges.',
+    "Find, share, and exchange books with readers in your community. Browse our catalog and request exchanges.",
 };
 
 export default function RootLayout({

@@ -23,9 +23,11 @@ export default function BookDetailPage() {
   const { user, token } = useAuthStore();
 
   const [book, setBook] = useState<Book | null>(null);
+  const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
+  const [offeredBookId, setOfferedBookId] = useState<number | ''>('');
 
   const [exchangeLoading, setExchangeLoading] = useState(false);
   const [exchangeSuccess, setExchangeSuccess] = useState(false);
@@ -38,6 +40,11 @@ export default function BookDetailPage() {
       try {
         const data = await apiFetch<Book>(`/api/books/${id}`);
         setBook(data);
+
+        if (useAuthStore.getState().token) {
+          const myBooksData = await apiFetch<Book[]>('/api/me/books', { auth: true });
+          setMyBooks(myBooksData);
+        }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load book.');
       } finally {
@@ -59,6 +66,7 @@ export default function BookDetailPage() {
       await apiFetch(`/api/books/${id}/exchange`, {
         method: 'POST',
         auth: true,
+        body: JSON.stringify({ offeredBookId: offeredBookId ? Number(offeredBookId) : undefined }),
       });
       setExchangeSuccess(true);
     } catch (err: unknown) {
@@ -119,7 +127,7 @@ export default function BookDetailPage() {
         {/* Cover */}
         <div className="flex-shrink-0 w-full md:w-72">
           <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl shadow-black/50">
-            {book.photoUrl && !imgError ? (
+            {book.photoUrl && book.photoUrl.startsWith('http') && !imgError ? (
               <Image
                 src={book.photoUrl}
                 alt={book.name}
@@ -191,6 +199,24 @@ export default function BookDetailPage() {
                 <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-5 py-4 text-sm text-red-400">
                   <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
                   <p>{exchangeError}</p>
+                </div>
+              )}
+
+              {token && !exchangeSuccess && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-slate-400 mb-2">Offer a book in exchange (Optional)</label>
+                  <select
+                    value={offeredBookId}
+                    onChange={(e) => setOfferedBookId(e.target.value ? Number(e.target.value) : '')}
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none"
+                  >
+                    <option value="">No book, just requesting</option>
+                    {myBooks.map((mb) => (
+                      <option key={mb.id} value={mb.id}>
+                        {mb.name} (by {mb.author})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 

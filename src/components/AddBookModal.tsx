@@ -1,7 +1,14 @@
-'use client';
+"use client";
 
-import { X, ImageIcon, AlertCircle, CheckCircle, Loader2, Plus } from 'lucide-react';
-import { AddBookForm } from '@/types';
+import {
+  X,
+  ImageIcon,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Plus,
+} from "lucide-react";
+import { AddBookForm } from "@/types";
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -27,7 +34,7 @@ export default function AddBookModal({
   if (!isOpen) return null;
 
   const inputClass =
-    'w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all';
+    "w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all";
 
   return (
     <div
@@ -56,7 +63,10 @@ export default function AddBookModal({
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5" htmlFor="add-book-name">
+            <label
+              className="block text-xs font-medium text-slate-400 mb-1.5"
+              htmlFor="add-book-name"
+            >
               Title <span className="text-red-400">*</span>
             </label>
             <input
@@ -70,7 +80,10 @@ export default function AddBookModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5" htmlFor="add-book-author">
+            <label
+              className="block text-xs font-medium text-slate-400 mb-1.5"
+              htmlFor="add-book-author"
+            >
               Author <span className="text-red-400">*</span>
             </label>
             <input
@@ -78,15 +91,21 @@ export default function AddBookModal({
               type="text"
               placeholder="e.g. F. Scott Fitzgerald"
               value={form.author}
-              onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, author: e.target.value }))
+              }
               className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5" htmlFor="add-book-photo">
+            <label
+              className="block text-xs font-medium text-slate-400 mb-1.5"
+              htmlFor="add-book-photo"
+            >
               <span className="flex items-center gap-1.5">
-                <ImageIcon size={12} /> Photo URL <span className="text-slate-600">(optional)</span>
+                <ImageIcon size={12} /> Photo URL{" "}
+                <span className="text-slate-600">(optional)</span>
               </span>
             </label>
             <input
@@ -94,7 +113,9 @@ export default function AddBookModal({
               type="url"
               placeholder="https://example.com/cover.jpg"
               value={form.photoUrl}
-              onChange={(e) => setForm((f) => ({ ...f, photoUrl: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, photoUrl: e.target.value }))
+              }
               className={inputClass}
             />
           </div>
@@ -134,7 +155,7 @@ export default function AddBookModal({
               ) : (
                 <Plus size={16} />
               )}
-              {formSuccess ? 'Added!' : 'Add Book'}
+              {formSuccess ? "Added!" : "Add Book"}
             </button>
           </div>
         </form>

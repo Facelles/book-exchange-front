@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
-import { useAuthStore } from '@/store/useAuthStore';
-import { AuthResponse } from '@/types';
-import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
+import { useAuthStore } from "@/store/useAuthStore";
+import { AuthResponse } from "@/types";
+import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,44 +22,46 @@ export default function LoginPage() {
     setError(null);
 
     if (!email.trim() || !password.trim()) {
-      setError('Please fill in all fields.');
+      setError("Please fill in all fields.");
       return;
     }
 
     setLoading(true);
     try {
-      const data = await apiFetch<AuthResponse>('/api/login', {
-        method: 'POST',
+      const data = await apiFetch<AuthResponse>("/api/login", {
+        method: "POST",
         body: JSON.stringify({ email: email.trim(), password }),
       });
       login(data.token, data.user);
-      router.push('/books');
+      router.push("/books");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      setError(
+        err instanceof Error ? err.message : "Login failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const inputClass =
-    'w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all';
+    "w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all";
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
-      {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Card */}
         <div className="bg-slate-900/80 border border-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-black/40">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 mb-4">
               <LogIn size={26} className="text-indigo-400" />
             </div>
             <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-            <p className="mt-1 text-sm text-slate-400">Sign in to your BookSwap account</p>
+            <p className="mt-1 text-sm text-slate-400">
+              Sign in to your BookSwap account
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
@@ -95,6 +97,15 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             {error && (
               <div className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-sm text-red-400">
                 <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
@@ -119,8 +130,11 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/register"
+              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            >
               Create one
             </Link>
           </p>
