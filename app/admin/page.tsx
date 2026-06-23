@@ -227,7 +227,7 @@ export default function AdminPage() {
           ) : (
             users.map((u, idx) => (
               <div
-                key={u.id}
+                key={u.id ? `user-${u.id}` : `fallback-${idx}`}
                 id={`admin-user-row-${u.id}`}
                 className="grid grid-cols-12 gap-4 items-center px-5 py-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
               >
@@ -235,8 +235,8 @@ export default function AdminPage() {
                   {idx + 1}
                 </div>
                 <div className="col-span-5 flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-700 border border-white/10 flex items-center justify-center flex-shrink-0 text-xs font-bold text-slate-300">
-                    {u.email[0].toUpperCase()}
+                  <div className="w-8 h-8 rounded-full bg-slate-700 border border-white/10 flex items-center justify-center font-medium text-white shadow-inner">
+                    {u.email?.[0]?.toUpperCase() || "?"}
                   </div>
                   <span className="text-sm text-white truncate">{u.email}</span>
                   {u.id === user?.id && (

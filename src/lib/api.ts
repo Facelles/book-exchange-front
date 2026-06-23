@@ -41,6 +41,9 @@ export async function apiFetch<T>(
     const errorBody = await res.json().catch(() => ({}));
     throw new Error(errorBody?.message ?? `Request failed: ${res.status}`);
   }
+  if (res.status === 204) {
+    return {} as T;
+  }
 
   return res.json() as Promise<T>;
 }
